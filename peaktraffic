@@ -59,10 +59,5 @@ ingest(ARGV[0])
 end
 
 output = []
-for set in @sets
-    output.push(set.collect {|i| @names[i]}.sort.join(', '))
-end
-output.sort!
-for line in output
-    puts line
-end
+@sets.each {|set| output.push(set.collect {|i| @names[i]}.sort.join(', '))}
+output.sort.each {|line| puts line}

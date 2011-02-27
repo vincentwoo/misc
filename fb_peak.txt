@@ -24,3 +24,7 @@ c i
 i c
 e i
 i e
+j b
+b j
+j d
+d j
