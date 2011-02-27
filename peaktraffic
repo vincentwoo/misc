@@ -1,0 +1,68 @@
+#!/usr/bin/ruby
+
+require 'set'
+
+@names = []
+@names_to_index = {}
+@sparse = []
+@sets = Set.new
+@seen = Set.new
+
+def process_name(name)
+    return @names_to_index[name] if @names_to_index.include? name
+    @sparse.push({})
+    @names.push name
+    @names_to_index[name] = @names_to_index.size
+end
+
+def ingest(input)
+    File.open(input, "r") do |f|
+        f.each do |line|
+            line = line.split
+            to = process_name line.pop
+            from = process_name line.pop
+            if @sparse[to][from].nil?
+                @sparse[from][to] = false
+            elsif not @sparse[to][from]
+                @sparse[to][from] = @sparse[from][to] = true
+            end
+        end
+    end
+    @sparse.each { |row| row.reject! { |k, v| !v } } 
+    @sparse.each_index { |i| @sparse[i] = Set.new @sparse[i].keys }
+end
+
+def subgraph(set, adj)
+    hash = set | adj
+    return if @seen.include? hash
+    if adj.empty?
+        @seen.add set
+        if set.size > 2
+            @sets.add set 
+            return true
+        end
+        return false
+    end
+    for node in adj
+        subgraph(set + [node], @sparse[node] & adj)
+    end
+end
+
+if ARGV.size != 1
+    p "pass the file to ingest as an argument."
+    exit
+end
+
+ingest(ARGV[0])
+@sparse.each_with_index do |row, i|
+    subgraph Set.new([i]), row 
+end
+
+output = []
+for set in @sets
+    output.push(set.collect {|i| @names[i]}.sort.join(', '))
+end
+output.sort!
+for line in output
+    puts line
+end
