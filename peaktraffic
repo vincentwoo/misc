@@ -1,5 +1,10 @@
 #!/usr/bin/ruby
 
+# http://www.facebook.com/careers/puzzles.php?puzzle_id=8
+# Joep Kerbosch and Coenraad Bron came up with Bron-Kerbosch, I'm just a 
+# hack going through the motions of solving algorithmic puzzles.
+# - Vincent Woo, 2010 
+
 $sets = []              #output of sets
 $sparse = {}            #sparse adjacency matrix
 $degen = []             #degeneracy ordering
