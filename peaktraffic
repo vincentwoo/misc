@@ -2,16 +2,16 @@
 
 require 'set'
 
-@sets = Set.new
-@names = []
-@names_to_index = {}
-@sparse = []
+$sets = Set.new
+$names = []
+$names_to_index = {}
+$sparse = []
     
 def process_name(name)
-    return @names_to_index[name] if @names_to_index.include? name
-    @sparse.push({})
-    @names.push name
-    @names_to_index[name] = @names_to_index.size
+    return $names_to_index[name] if $names_to_index.include? name
+    $sparse.push({})
+    $names.push name
+    $names_to_index[name] = $names_to_index.size
 end
 
 def ingest(input)
@@ -20,25 +20,25 @@ def ingest(input)
         next if line.empty?
         from, to = line.split("\t")[1..2].collect{|name| process_name name}
         next if from == to
-        if @sparse[to][from].nil?
-            @sparse[from][to] = false
-        elsif not @sparse[to][from]
-            @sparse[to][from] = @sparse[from][to] = true
+        if $sparse[to][from].nil?
+            $sparse[from][to] = false
+        elsif not $sparse[to][from]
+            $sparse[to][from] = $sparse[from][to] = true
         end
     end
-    @sparse.collect! {|row| row.reject{|k, v| !v}.keys.to_set}
+    $sparse.collect! {|row| row.reject{|k, v| !v}.keys.to_set}
 end
 
 def list_maximal(set, points, exclude)
     if points.empty?
-        @sets.add set if set.size > 2 and exclude.empty?
+        $sets.add set if set.size > 2 and exclude.empty?
         return
     end
-    pivot = (points + exclude).max_by { |n| @sparse[n].size }
-    for vertex in points - @sparse[pivot]
+    pivot = (points + exclude).max_by { |n| $sparse[n].size }
+    for vertex in points - $sparse[pivot]
         list_maximal(set + [vertex],
-                     points & @sparse[vertex],
-                     exclude & @sparse[vertex])
+                     points & $sparse[vertex],
+                     exclude & $sparse[vertex])
         points.delete vertex
         exclude.add vertex
     end
@@ -46,8 +46,8 @@ end
 
 exit unless ARGV.size == 1
 ingest(ARGV[0])
-list_maximal(Set.new, (0..@sparse.length-1).to_set, Set.new)
+list_maximal(Set.new, (0..$sparse.length-1).to_set, Set.new)
 
-output = @sets.collect {|set| set.collect {|i| @names[i]}.sort.join(', ')}
+output = $sets.collect {|set| set.collect {|i| $names[i]}.sort.join(', ')}
 output.sort.each{|line| puts line}
 print "\n"
