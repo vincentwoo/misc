@@ -50,4 +50,3 @@ list_maximal(Set.new, (0..$sparse.length-1).to_set, Set.new)
 
 output = $sets.collect {|set| set.collect {|i| $names[i]}.sort.join(', ')}
 output.sort.each{|line| puts line}
-print "\n"
