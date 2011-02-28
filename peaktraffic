@@ -3,6 +3,7 @@
 # http://www.facebook.com/careers/puzzles.php?puzzle_id=8
 # Joep Kerbosch and Coenraad Bron came up with Bron-Kerbosch, I'm just a 
 # hack going through the motions of solving algorithmic puzzles.
+# Facebook Puzzle Bot, you a cruel mistress.
 # - Vincent Woo, 2010 
 
 $sets = []              #output of sets
