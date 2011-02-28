@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+n = File.open(ARGV[0]).gets.to_i
+1.upto(n) do |i|
+    if i % 3 == 0 && i % 5 == 0
+        print "Hop\n"
+    elsif i % 3 == 0
+        print "Hoppity\n"
+    elsif i % 5 == 0
+        print "Hophop\n"
+    end
+end
