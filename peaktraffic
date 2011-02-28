@@ -50,12 +50,15 @@ def generate_degeneracy_ordering
     end
 end
 
-def bron_kerbosch(set, points, exclude, pivot=nil)
+def bron_kerbosch(set, points, exclude, pivot_neighbors=nil)
     if points.empty?
         $sets.push set.sort.join(', ') if set.size > 2 and exclude.empty?
         return
     end
-    pivot_neighbors ||= (points+exclude).collect{|v| $sparse[v]}.max{|a, b| a.size <=> b.size}
+
+    pivot_neighbors ||= (exclude.empty? or $sparse[points.last].size > $sparse[exclude.last].size) ?
+        $sparse[points.last] : $sparse[exclude.last]
+        
     points.each_with_index do |vertex, i|
         next if pivot_neighbors.include? vertex
         points[i] = nil
@@ -77,7 +80,7 @@ $degen.each do |vertex|
     bron_kerbosch([vertex],
                   intersect,
                   before & $sparse[vertex],
-                  intersect.last) #last elements in $degen have highest degrees
+                  $sparse[intersect.last]) #last elements in $degen have highest degrees
     before.push vertex
     after.shift
 end
