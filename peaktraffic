@@ -1,52 +1,74 @@
 #!/usr/bin/ruby
 
-require 'set'
-
-$sets = Set.new
-$names = []
-$names_to_index = {}
-$sparse = []
-    
-def process_name(name)
-    return $names_to_index[name] if $names_to_index.include? name
-    $sparse.push({})
-    $names.push name
-    $names_to_index[name] = $names_to_index.size
-end
+$sets = []              #output of sets
+$sparse = {}            #sparse adjacency matrix
+$degen = []        #degeneracy ordering
 
 def ingest(input)
     File.foreach(input) do |line|
         line.strip!
         next if line.empty?
-        from, to = line.split("\t")[1..2].collect{|name| process_name name}
+        from, to = line.split("\t")[1..2]
         next if from == to
+        $sparse[to] ||= {}
+        $sparse[from] ||= {}
         if $sparse[to][from].nil?
             $sparse[from][to] = false
         elsif not $sparse[to][from]
             $sparse[to][from] = $sparse[from][to] = true
         end
     end
-    $sparse.collect! {|row| row.reject{|k, v| !v}.keys.to_set}
+    $sparse.merge!($sparse) {|k, row| row.reject{|k, v| !v}.keys}
 end
 
-def list_maximal(set, points, exclude)
+def generate_degeneracy_ordering
+    d = []  #degree buckets
+    dw = {} #degree for each vertex
+    $sparse.each_pair do |vertex, neighbors|
+        deg = neighbors.size
+        d[deg] ||= []
+        d[deg].push vertex
+        dw[vertex] = deg
+    end
+    d.each_index do |i|
+        d[i] ||= []
+    end
+    $sparse.size.times do
+        vertex = d.find {|x| !x.empty?}.pop
+        $degen.push vertex
+        for neighbor in $sparse[vertex]
+            if d[dw[neighbor]].delete neighbor
+                dw[neighbor] -= 1
+                d[dw[neighbor]].push neighbor
+            end
+        end
+    end
+end
+def bron_kerbosch(set, points, exclude, pivot=nil)
     if points.empty?
-        $sets.add set if set.size > 2 and exclude.empty?
+        $sets.push set.sort.join(', ') if set.size > 2 and exclude.empty?
         return
     end
-    pivot = (points + exclude).max_by { |n| $sparse[n].size }
-    for vertex in points - $sparse[pivot]
-        list_maximal(set + [vertex],
-                     points & $sparse[vertex],
-                     exclude & $sparse[vertex])
-        points.delete vertex
-        exclude.add vertex
+    pivot ||= (points + exclude).max_by {|n| $sparse[n].size}
+    points.each_index do |i|
+        next if $sparse[points[i]].include? pivot
+        bron_kerbosch(set + [points[i]],
+                     points & $sparse[points[i]],
+                     exclude & $sparse[points[i]])
+        exclude.push points[i]
+        points[i] = nil
     end
 end
 
 exit unless ARGV.size == 1
 ingest(ARGV[0])
-list_maximal(Set.new, (0..$sparse.length-1).to_set, Set.new)
+generate_degeneracy_ordering
+$degen.each_index do |vertex|
+    intersect = $degen[vertex+1..$degen.length-1] & $sparse[$degen[vertex]]
+    bron_kerbosch([$degen[vertex]],
+                  intersect,
+                  $degen[0,vertex] & $sparse[$degen[vertex]],
+                  intersect.last) #last elements in $degen have highest degrees
+end
 
-output = $sets.collect {|set| set.collect {|i| $names[i]}.sort.join(', ')}
-output.sort.each{|line| puts line}
+$sets.sort.each {|line| puts line}
