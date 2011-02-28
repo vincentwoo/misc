@@ -15,11 +15,8 @@ def ingest(input)
     @names = []
     @names_to_index = {}
     @sparse = []
-    delim = ' '
     File.foreach(input) do |line|
-        line = line.split delim
-        to = process_name line.pop
-        from = process_name line.pop
+        from, to = line.split(' ').last(2).collect{|name| process_name name}
         if @sparse[to][from].nil?
             @sparse[from][to] = false
         elsif not @sparse[to][from]
