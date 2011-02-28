@@ -26,8 +26,7 @@ def ingest(input)
             @sparse[to][from] = @sparse[from][to] = true
         end
     end
-    @sparse.each { |row| row.reject! { |k, v| !v } } 
-    @sparse.each_index { |i| @sparse[i] = @sparse[i].keys.to_set }
+    @sparse.collect! {|row| row.reject{|k, v| !v}.keys.to_set}
 end
 
 def subgraph(set, adj)
@@ -38,11 +37,7 @@ def subgraph(set, adj)
     @seen.add hash
 end
 
-if ARGV.size != 1
-    p "pass the file to ingest as an argument."
-    exit
-end
-
+exit unless ARGV.size == 1
 ingest(ARGV[0])
 @sparse.each_with_index do |row, i|
     subgraph Set.new([i]), row 
