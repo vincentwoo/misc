@@ -2,11 +2,7 @@
 
 require 'set'
 
-@names = []
-@names_to_index = {}
-@sparse = []
 @sets = Set.new
-@seen = Set.new
 
 def process_name(name)
     return @names_to_index[name] if @names_to_index.include? name
@@ -16,8 +12,12 @@ def process_name(name)
 end
 
 def ingest(input)
+    @names = []
+    @names_to_index = {}
+    @sparse = []
+    delim = ' '
     File.foreach(input) do |line|
-        line = line.split ' '
+        line = line.split delim
         to = process_name line.pop
         from = process_name line.pop
         if @sparse[to][from].nil?
@@ -29,19 +29,20 @@ def ingest(input)
     @sparse.collect! {|row| row.reject{|k, v| !v}.keys.to_set}
 end
 
-def subgraph(set, adj)
-    hash = set | adj
-    return if @seen.include? hash
-    @sets.add set if adj.empty? and set.size > 2
-    adj.each {|node| subgraph(set + [node], @sparse[node] & adj)}
-    @seen.add hash
+def list_maximal(set, points, exclude)
+    @sets.add set if points.empty? and exclude.empty? and set.size > 2
+    for vertex in points
+        list_maximal(set + [vertex],
+                     points & @sparse[vertex],
+                     exclude & @sparse[vertex])
+        points.delete vertex
+        exclude.add vertex
+    end
 end
 
 exit unless ARGV.size == 1
 ingest(ARGV[0])
-@sparse.each_with_index do |row, i|
-    subgraph Set.new([i]), row 
-end
+list_maximal(Set.new, (0..@sparse.length-1).to_set, Set.new)
 
 output = @sets.collect {|set| set.collect {|i| @names[i]}.sort.join(', ')}
 output.sort.each {|line| puts line}
