@@ -16,36 +16,26 @@ def process_name(name)
 end
 
 def ingest(input)
-    File.open(input, "r") do |f|
-        f.each do |line|
-            line = line.split
-            to = process_name line.pop
-            from = process_name line.pop
-            if @sparse[to][from].nil?
-                @sparse[from][to] = false
-            elsif not @sparse[to][from]
-                @sparse[to][from] = @sparse[from][to] = true
-            end
+    File.foreach(input) do |line|
+        line = line.split ' '
+        to = process_name line.pop
+        from = process_name line.pop
+        if @sparse[to][from].nil?
+            @sparse[from][to] = false
+        elsif not @sparse[to][from]
+            @sparse[to][from] = @sparse[from][to] = true
         end
     end
     @sparse.each { |row| row.reject! { |k, v| !v } } 
-    @sparse.each_index { |i| @sparse[i] = Set.new @sparse[i].keys }
+    @sparse.each_index { |i| @sparse[i] = @sparse[i].keys.to_set }
 end
 
 def subgraph(set, adj)
     hash = set | adj
     return if @seen.include? hash
-    if adj.empty?
-        @seen.add set
-        if set.size > 2
-            @sets.add set 
-            return true
-        end
-        return false
-    end
-    for node in adj
-        subgraph(set + [node], @sparse[node] & adj)
-    end
+    @sets.add set if adj.empty? and set.size > 2
+    adj.each {|node| subgraph(set + [node], @sparse[node] & adj)}
+    @seen.add hash
 end
 
 if ARGV.size != 1
@@ -58,6 +48,5 @@ ingest(ARGV[0])
     subgraph Set.new([i]), row 
 end
 
-output = []
-@sets.each {|set| output.push(set.collect {|i| @names[i]}.sort.join(', '))}
+output = @sets.collect {|set| set.collect {|i| @names[i]}.sort.join(', ')}
 output.sort.each {|line| puts line}
