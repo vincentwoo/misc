@@ -3,7 +3,8 @@
 # http://www.facebook.com/careers/puzzles.php?puzzle_id=8
 # Joep Kerbosch and Coenraad Bron came up with Bron-Kerbosch, I'm just a 
 # hack going through the motions of solving algorithmic puzzles.
-# Facebook Puzzle Bot, you a cruel mistress.
+# Facebook Puzzle Bot, you are a cruel mistress. I think it took me
+# about a day to realize max_by isn't in Ruby 1.8.6. Christ.
 # - Vincent Woo, 2010 
 
 $sets = []              #output of sets
@@ -54,19 +55,20 @@ def bron_kerbosch(set, points, exclude, pivot=nil)
         $sets.push set.sort.join(', ') if set.size > 2 and exclude.empty?
         return
     end
-    pivot ||= (points + exclude).max_by {|n| $sparse[n].size}
-    points.each_index do |i|
-        next if $sparse[points[i]].include? pivot
-        bron_kerbosch(set + [points[i]],
-                     points & $sparse[points[i]],
-                     exclude & $sparse[points[i]])
-        exclude.push points[i]
+    pivot_neighbors ||= (points+exclude).collect{|v| $sparse[v]}.max{|a, b| a.size <=> b.size}
+    points.each_with_index do |vertex, i|
+        next if pivot_neighbors.include? vertex
         points[i] = nil
+        bron_kerbosch(set + [vertex],
+                      points & $sparse[vertex],
+                      exclude & $sparse[vertex])
+        exclude.push vertex
     end
 end
 
 exit unless ARGV.size == 1
 ingest(ARGV[0])
+
 generate_degeneracy_ordering
 before = []
 after = $degen[1..$degen.size-1]
