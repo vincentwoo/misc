@@ -68,12 +68,16 @@ end
 exit unless ARGV.size == 1
 ingest(ARGV[0])
 generate_degeneracy_ordering
-$degen.each_index do |vertex|
-    intersect = $degen[vertex+1..$degen.length-1] & $sparse[$degen[vertex]]
-    bron_kerbosch([$degen[vertex]],
+before = []
+after = $degen[1..$degen.size-1]
+$degen.each do |vertex|
+    intersect = after & $sparse[vertex]
+    bron_kerbosch([vertex],
                   intersect,
-                  $degen[0,vertex] & $sparse[$degen[vertex]],
+                  before & $sparse[vertex],
                   intersect.last) #last elements in $degen have highest degrees
+    before.push vertex
+    after.shift
 end
 
 $sets.sort.each {|line| puts line}
