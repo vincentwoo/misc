@@ -72,6 +72,8 @@ end
 exit unless ARGV.size == 1
 ingest(ARGV[0])
 
+if false #this is the Bron Kerbosch algorithm codepath
+         #surrounded by an if false to preserve formatting
 generate_degeneracy_ordering
 before = []
 after = $degen[1..$degen.size-1]
@@ -83,6 +85,21 @@ $degen.each do |vertex|
                   $sparse[intersect.last]) #last elements in $degen have highest degrees
     before.push vertex
     after.shift
+end
+end
+
+# ... and here's my naive solution! It works? Fast? 
+$seen = {}
+def subgraph(set, adj)
+    hash = (set + adj).sort
+    return if $seen[hash]
+    $sets.push set.sort.join(", ") if adj.empty? and set.size > 2
+    adj.each {|node| subgraph(set + [node], $sparse[node] & adj)}
+    $seen[hash] = true
+end
+
+$sparse.keys.each do |vertex|
+    subgraph([vertex], $sparse[vertex])
 end
 
 $sets.sort.each {|line| puts line}
