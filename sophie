@@ -1,0 +1,29 @@
+#!/usr/bin/ruby
+require 'pp'
+
+def ingest(input)
+	f = File.open input, "r"
+	n = f.gets.to_i
+	nodes = {}
+	$probs = Array.new n
+	$edges = Array.new(n) {|i| Array.new}
+	$weights = Array.new(n) {|i| Array.new(n)}
+	n.times do |i|
+		line = f.gets.split ' '
+		nodes[line.first] = i
+		$probs[i] = line.last.to_f
+	end
+	f.gets.to_i.times do
+		line = f.gets.split
+		x, y = line[0..1].collect{|n| nodes[n]}
+		$edges[x].push y
+		$edges[y].push x
+		$weights[x][y] = $weights[y][x] = line.last.to_f
+	end
+	f.close
+end
+
+ingest(ARGV[0])
+pp $weights
+pp $probs
+pp $edges
