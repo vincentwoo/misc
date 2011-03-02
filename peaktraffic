@@ -88,6 +88,7 @@ $degen.each do |vertex|
 end
 end
 
+if true
 # ... and here's my naive solution! It works? Fast? 
 $seen = {}
 def subgraph(set, adj)
@@ -101,5 +102,5 @@ end
 $sparse.keys.each do |vertex|
     subgraph([vertex], $sparse[vertex])
 end
-
+end
 $sets.sort.each {|line| puts line}

@@ -1,15 +1,14 @@
 #!/usr/bin/ruby
-require 'pp'
 
 def ingest(input)
 	f = File.open input, "r"
-	n = f.gets.to_i
+	$num = f.gets.to_i
 	nodes = {}
-	$probs = Array.new n
-	$edges = Array.new(n) {|i| Array.new}
-	$weights = Array.new(n) {|i| Array.new(n)}
-	n.times do |i|
-		line = f.gets.split ' '
+	$probs = Array.new $num
+	$edges = Array.new($num) {|i| Array.new}
+	$weights = Array.new($num) {|i| Array.new($num)}
+	$num.times do |i|
+		line = f.gets.split
 		nodes[line.first] = i
 		$probs[i] = line.last.to_f
 	end
@@ -23,7 +22,47 @@ def ingest(input)
 	f.close
 end
 
+def solveable
+	seen = {}
+	dfs = lambda do |node|
+		return 0 if seen[node]
+		seen[node] = true
+		$edges[node].each {|n| dfs.call n}
+	end
+	dfs.call 0
+	for node in ((0..$num-1).to_a - seen.keys)
+		return false if $probs[node] > 0
+	end
+	true
+end
+
+def solve()
+	queue = [[0, {0 => true}, $probs.first, 0, 0]]
+	while not queue.empty?
+		node, seen, remaining, time, expected = queue.shift
+		return expected if remaining == 1
+		options = {}
+		$edges[node].each do |n|
+			options[n] = seen[n] ? 0 : ($probs[n] / $weights[node][n])
+		end
+		options = options.sort{|a,b| b.last <=> a.last}.collect{|a| a.first}
+		options.each do |n|
+			new_time = time + $weights[node][n]
+			queue.push([
+				n,
+				{n => true}.merge(seen),
+				remaining + (seen[n] ? 0 : $probs[n]),
+				new_time,
+				expected + $probs[n] * new_time])
+		end
+	end
+end
+
 ingest(ARGV[0])
-pp $weights
-pp $probs
-pp $edges
+
+unless solveable
+	puts "-1.00"
+	exit
+end
+
+puts solve
