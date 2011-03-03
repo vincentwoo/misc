@@ -49,22 +49,19 @@ def solveable
     }.empty?
 end
 
-def solve()
+def solve
     queue = Heap.new {|x,y| (x.last <=> y.last) == -1}
-    queue.push [0, Set.new(1..$num-1), $probs.first, 0, 0]
+    queue.push [0, Set.new((1..$num-1).select {|n| $probs[n] > 0}),
+                0, 0]
     while not queue.empty?
-        node, remain, accumulated, time, expected = queue.pop
-        return expected if accumulated == 1
+        node, remain, time, expected = queue.pop
+        return expected if remain.empty?
         remain.select {|n|
             (links(node, n) & remain).empty?
         }.each do |n|
             new_time = time + $weights[node][n]
-            queue.push([
-                n,
-                remain - [n],
-                accumulated + $probs[n],
-                new_time,
-                expected + $probs[n] * new_time])
+            queue.push([n, remain - [n],
+                new_time, expected + $probs[n] * new_time])
         end
     end
 end
