@@ -1,0 +1,80 @@
+#!/usr/bin/ruby
+require 'set'
+require 'heap'
+
+def ingest(input)
+    f = File.open input, "r"
+    $num = f.gets.to_i
+    nodes = {}
+    $probs = Array.new $num
+    $weights = Array.new($num) {|i| Array.new($num, Float::MAX)}
+    $num.times do |i|
+        line = f.gets.split
+        nodes[line.first] = i
+        $probs[i] = line.last.to_f
+    end
+    f.gets.to_i.times do
+        line = f.gets.split
+        x, y = line[0..1].collect{|n| nodes[n]}
+        $weights[x][y] = $weights[y][x] = line.last.to_f
+    end
+    f.close
+end
+
+def floyd_warshall
+    $next = Array.new($num) {|i| Array.new($num)}
+    for k in 0..$num-1
+    for i in 0..$num-1
+    for j in 0..$num-1
+        if $weights[i][k] + $weights[k][j] < $weights[i][j]
+            $weights[i][j] = $weights[i][k] + $weights[k][j]
+            $next[i][j] = k
+        end
+    end
+    end
+    end
+end
+
+def links(i, j)
+    k = $next[i][j]
+    return k if k.class == Set
+    $next[i][j] = k.nil? ?
+        Set.new([]) :
+        Set.new(links(i, k) + [k] + links(k, j))
+end
+
+def solveable
+    (1..$num-1).to_a.select{|i|
+        $probs[i] > 0 and $weights[0][i] == Float::MAX
+    }.empty?
+end
+
+def solve()
+    queue = Heap.new {|x,y| (x.last <=> y.last) == -1}
+    queue.push [0, Set.new(1..$num-1), $probs.first, 0, 0]
+    while not queue.empty?
+        node, remain, accumulated, time, expected = queue.pop
+        return expected if accumulated == 1
+        remain.select {|n|
+            (links(node, n) & remain).empty?
+        }.each do |n|
+            new_time = time + $weights[node][n]
+            queue.push([
+                n,
+                remain - [n],
+                accumulated + $probs[n],
+                new_time,
+                expected + $probs[n] * new_time])
+        end
+    end
+end
+
+ingest(ARGV[0])
+floyd_warshall
+
+unless solveable
+    puts "-1.00"
+    exit
+end
+
+puts "%.2f" % solve
