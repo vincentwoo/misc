@@ -1,6 +1,4 @@
 #!/usr/bin/ruby
-require 'set'
-require 'heap'
 
 def ingest(input)
     f = File.open input, "r"
@@ -35,40 +33,30 @@ def floyd_warshall
     end
 end
 
-def links(i, j)
-    k = $next[i][j]
-    return k if k.class == Set
-    $next[j][i] = $next[i][j] = (k.nil? or i == j) ?
-        Set.new([]) :
-        (links(i, k) + Set.new([k]) + links(k, j))
-end
-
 def solveable
-    (1..$num-1).each{|i|
-        return false if $probs[i] > 0 and $weights[0][i] == Float::MAX
-    }
-    true
+    (1..$num-1).select {|i| $probs[i] > 0 and $weights[0][i] == Float::MAX}.empty?
 end
 
 def solve
-    queue = MinHeap.new
-    queue.push 0.0, [[0], Set.new((1..$num-1).select {|n| $probs[n] > 0}), 0.0, 0.0]
-    while not queue.empty?
-        node, remain, time, expected = queue.pop
-        #puts "%.2f" % expected + "[#{time}]"
-        if remain.empty?
-            p node
-            return expected 
-        end
-        remain.select {|n|
-            (links(node.last, n) & remain).empty?
-        }.each do |n|
-            new_time = time + $weights[node.last][n]
-            new_expected = expected + $probs[n] * new_time
-            #puts "queuing #{node.join ' '} to #{n} adding #{$probs[n]} * #{new_time} to #{expected}. rem: #{(remain - [n]).to_a.join ' '}"
-            queue.push new_expected, [node + [n], remain - [n], new_time, new_expected]
+    relevant = (1..$num-1).select {|n| $probs[n] > 0}
+    hash = {}
+    hash[[0]] = {0 => [0, 0]}
+    for size in 1..relevant.size
+        relevant.combination(size).each do |subset|
+            subset.insert 0, 0
+            hash[subset] = {0 => [Float::MAX, Float::MAX]}
+            for j in subset
+                next if j == 0
+                reduced = subset - [j]
+                hash[subset][j] = reduced.collect {|i|
+                    e, t = hash[reduced][i]
+                    t += $weights[i][j]
+                    [e + t * $probs[j], t]
+                }.min {|a,b| a.first <=> b.first}
+            end
         end
     end
+    hash[[0] + relevant].values.collect {|x| x.first}.min
 end
 
 ingest(ARGV[0])
