@@ -7,7 +7,7 @@ def ingest(input)
     $num = f.gets.to_i
     nodes = {}
     $probs = Array.new $num
-    $weights = Array.new($num) {|i| Array.new($num, Float::MAX)}
+    $weights = Array.new($num) {|i| Array.new($num) {|j| i == j ? 0 : Float::MAX}}
     $num.times do |i|
         line = f.gets.split
         nodes[line.first] = i
@@ -38,30 +38,35 @@ end
 def links(i, j)
     k = $next[i][j]
     return k if k.class == Set
-    $next[i][j] = k.nil? ?
+    $next[j][i] = $next[i][j] = (k.nil? or i == j) ?
         Set.new([]) :
-        Set.new(links(i, k) + [k] + links(k, j))
+        (links(i, k) + Set.new([k]) + links(k, j))
 end
 
 def solveable
-    (1..$num-1).to_a.select{|i|
-        $probs[i] > 0 and $weights[0][i] == Float::MAX
-    }.empty?
+    (1..$num-1).each{|i|
+        return false if $probs[i] > 0 and $weights[0][i] == Float::MAX
+    }
+    true
 end
 
 def solve
-    queue = Heap.new {|x,y| (x.last <=> y.last) == -1}
-    queue.push [0, Set.new((1..$num-1).select {|n| $probs[n] > 0}),
-                0, 0]
+    queue = MinHeap.new
+    queue.push 0.0, [[0], Set.new((1..$num-1).select {|n| $probs[n] > 0}), 0.0, 0.0]
     while not queue.empty?
         node, remain, time, expected = queue.pop
-        return expected if remain.empty?
+        #puts "%.2f" % expected + "[#{time}]"
+        if remain.empty?
+            p node
+            return expected 
+        end
         remain.select {|n|
-            (links(node, n) & remain).empty?
+            (links(node.last, n) & remain).empty?
         }.each do |n|
-            new_time = time + $weights[node][n]
-            queue.push([n, remain - [n],
-                new_time, expected + $probs[n] * new_time])
+            new_time = time + $weights[node.last][n]
+            new_expected = expected + $probs[n] * new_time
+            #puts "queuing #{node.join ' '} to #{n} adding #{$probs[n]} * #{new_time} to #{expected}. rem: #{(remain - [n]).to_a.join ' '}"
+            queue.push new_expected, [node + [n], remain - [n], new_time, new_expected]
         end
     end
 end
