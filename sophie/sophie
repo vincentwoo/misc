@@ -42,10 +42,14 @@ def solve(node, remain, expect = 0, time = 0, unseen = nil)
     unseen ||= 1 - $probs[0]
     return if expect + unseen * time >= $min
     return ($min = expect) if remain.empty?
-    remain.each {|n|
+    remain.each do |n|
         next_time  = time + $weights[node][n]
-        solve n, remain - [n], expect + next_time * $probs[n], next_time, unseen - $probs[n]
-    }
+        solve n,
+              remain - [n],
+              expect + next_time * $probs[n],
+              next_time,
+              unseen - $probs[n]
+    end
     $min
 end
 
