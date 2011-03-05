@@ -37,26 +37,16 @@ def solveable
     (1..$num-1).select {|i| $probs[i] > 0 and $weights[0][i] == Float::MAX}.empty?
 end
 
-def solve
-    relevant = (1..$num-1).select {|n| $probs[n] > 0}
-    hash = {}
-    hash[[0]] = {0 => [0, 0]}
-    for size in 1..relevant.size
-        relevant.combination(size).each do |subset|
-            subset.insert 0, 0
-            hash[subset] = {0 => [Float::MAX, Float::MAX]}
-            for j in subset
-                next if j == 0
-                reduced = subset - [j]
-                hash[subset][j] = reduced.collect {|i|
-                    e, t = hash[reduced][i]
-                    t += $weights[i][j]
-                    [e + t * $probs[j], t]
-                }.min {|a,b| a.first <=> b.first}
-            end
-        end
-    end
-    hash[[0] + relevant].values.collect {|x| x.first}.min
+$min = Float::MAX
+def solve(node, remain, expect = 0, time = 0, unseen = nil)
+    unseen ||= 1 - $probs[0]
+    return if expect + unseen * time >= $min
+    return ($min = expect) if remain.empty?
+    remain.each {|n|
+        next_time  = time + $weights[node][n]
+        solve n, remain - [n], expect + next_time * $probs[n], next_time, unseen - $probs[n]
+    }
+    $min
 end
 
 ingest(ARGV[0])
@@ -67,4 +57,4 @@ unless solveable
     exit
 end
 
-puts "%.2f" % solve
+puts "%.2f" % solve(0, (1..$num-1).select {|i| $probs[i] > 0})
