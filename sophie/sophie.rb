@@ -20,13 +20,11 @@ def ingest(input)
 end
 
 def floyd_warshall
-    $next = Array.new($num) {|i| Array.new($num)}
     for k in 0..$num-1
     for i in 0..$num-1
     for j in 0..$num-1
         if $weights[i][k] + $weights[k][j] < $weights[i][j]
             $weights[i][j] = $weights[i][k] + $weights[k][j]
-            $next[i][j] = k
         end
     end
     end
@@ -38,17 +36,16 @@ def solveable
 end
 
 $min = Float::MAX
-def solve(node, remain, expect = 0, time = 0, unseen = nil)
-    unseen ||= 1 - $probs[0]
+def solve(node, remain, unseen, expect = 0, time = 0)
     return if expect + unseen * time >= $min
     return ($min = expect) if remain.empty?
     remain.each do |n|
         next_time  = time + $weights[node][n]
         solve n,
               remain - [n],
+              unseen - $probs[n],
               expect + next_time * $probs[n],
-              next_time,
-              unseen - $probs[n]
+              next_time
     end
     $min
 end
@@ -61,4 +58,4 @@ unless solveable
     exit
 end
 
-puts "%.2f" % solve(0, (1..$num-1).select {|i| $probs[i] > 0})
+puts "%.2f" % solve(0, 1 - $probs[0], (1..$num-1).select {|i| $probs[i] > 0})
