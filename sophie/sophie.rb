@@ -58,4 +58,4 @@ unless solveable
     exit
 end
 
-puts "%.2f" % solve(0, 1 - $probs[0], (1..$num-1).select {|i| $probs[i] > 0})
+puts "%.2f" % solve(0, (1..$num-1).select {|i| $probs[i] > 0}, 1 - $probs[0])

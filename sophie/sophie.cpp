@@ -4,12 +4,17 @@
 #include <string.h>
 #include <stdlib.h>
 #include <limits>
-#include <set>
+#include <vector>
 using namespace std;
 
 #define MAXLINE 256
 int num;
 double *probs, **weights;
+
+struct node_entry {
+    int index;
+    bool active;
+};
 
 void ingest(char* file) {
     ifstream in(file, ios::in);
@@ -46,32 +51,33 @@ void floyd_warshall() {
     }}}
 }
 
-bool solveable(set<int> &relevant) {
-    for (set<int>::iterator n = relevant.begin(); n != relevant.end(); n++) {
-        if (weights[0][*n] == numeric_limits<double>::max())
+bool solveable(vector<node_entry> &relevant) {
+    for (vector<node_entry>::iterator n = relevant.begin(); n != relevant.end(); n++) {
+        if (weights[0][n->index] == numeric_limits<double>::max())
             return false;
     }
     return true;
 }
 
-double solve(int node, set<int> &remain, double unseen,
-        double expect = 0.0, double time = 0.0) {
+double solve(int node, vector<node_entry> &remain, double unseen,
+        double expect = 0.0, double time = 0.0, int depth = 1) {
     static double min = numeric_limits<double>::max();
     if (expect + unseen * time >= min)
         return -1;
-    if (remain.size() == 0) {
-        min = expect;
-        return -1;
-    }
-    set<int> next_remain = remain;
-    for (set<int>::iterator n = remain.begin(); n != remain.end(); n++) {
-        int next = *n;
+    
+    bool empty = true;
+    for (vector<node_entry>::iterator n = remain.begin(); n != remain.end(); n++) {
+        if (!n->active)
+            continue;
+        empty = false;
+        int next = n->index;
         double next_time = time + weights[node][next];
-        next_remain.erase(next);
-        solve(next, next_remain, unseen - probs[next],
-            expect + next_time * probs[next], next_time);
-        next_remain.insert(next);
+        n->active = false;
+        solve(next, remain, unseen - probs[next],
+            expect + next_time * probs[next], next_time, depth+1);
+        n->active = true;
     }
+    if (empty) min = expect;
     return min;
 }
 
@@ -79,11 +85,19 @@ int main(int argc, char *argv[]) {
     if (argc != 2) return 1;
     ingest(argv[1]);
     floyd_warshall();
-    set<int> initial;
-    for (int i = 1; i < num; i++) if (probs[i] > 0) initial.insert(i);
+    vector<node_entry> initial;
+    for (int i = 1; i < num; i++) {
+        if (probs[i] > 0) {
+            node_entry n;
+            n.index = i;
+            n.active = true;
+            initial.push_back(n);
+        }
+    }
     if (!solveable(initial))
         printf("-1.00\n");
     else
         printf("%.2f\n", solve(0, initial, 1.0 - probs[0]));
+        
     return 0;
 }
