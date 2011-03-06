@@ -60,7 +60,7 @@ bool solveable(vector<node_entry> &relevant) {
 }
 
 double solve(int node, vector<node_entry> &remain, double unseen,
-        double expect = 0.0, double time = 0.0, int depth = 1) {
+        double expect = 0.0, double time = 0.0) {
     static double min = numeric_limits<double>::max();
     if (expect + unseen * time >= min)
         return -1;
@@ -74,7 +74,7 @@ double solve(int node, vector<node_entry> &remain, double unseen,
         double next_time = time + weights[node][next];
         n->active = false;
         solve(next, remain, unseen - probs[next],
-            expect + next_time * probs[next], next_time, depth+1);
+            expect + next_time * probs[next], next_time);
         n->active = true;
     }
     if (empty) min = expect;
