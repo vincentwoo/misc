@@ -131,7 +131,6 @@ class RBTree
   end
   
   def remove_recursive(root, data, done = [false])
-    root = @root
     if root.nil?
       done[0] = true
     else
@@ -157,10 +156,11 @@ class RBTree
       end
       
       dir = root.data < data ? :right : :left
-      p root.data
       root.links[dir] = remove_recursive root.links[dir], data, done
       
-      root = remove_balance(root, dir, done) unless done[0]
+      if done[0]
+        root = remove_balance(root, dir, done)
+      end
     end
     root
   end
