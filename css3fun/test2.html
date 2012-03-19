@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+    
+	   #container {
+         margin: 130px 0px 100px 100px;
+         width: 650px;
+   		}
+        
+       .outer-box {
+          float: left;
+          position: relative;
+          width:100px;
+          height: 100px;
+          background: #333;
+          display: block;
+          margin: 15px 0px;
+        }
+        
+       .outer-box .inner-box {
+          position: absolute;
+          top: 0;
+          left: 0;
+          opacity: 0;
+          width:100px;
+          height: 100px;
+          display: block;
+          -webkit-transition: all 1s ease;
+        }
+        
+       .outer-box .inner-box:nth-child(1) {
+          background: rgba(256, 0, 0, 0.8);
+          -webkit-transform-origin: top left;
+        }
+        
+       .outer-box .inner-box:nth-child(2) {
+          background: rgba(50, 200, 150, 0.8);
+          -webkit-transform-origin: top right;         
+        }
+        
+       .outer-box .inner-box:nth-child(3) {
+          background: rgba(0, 256, 0, 0.8);
+          -webkit-transform-origin: bottom left;
+        }
+        
+       .outer-box .inner-box:nth-child(4) {
+          background: rgba(0, 100, 256, 0.8);
+          -webkit-transform-origin: bottom right;
+        }
+        
+        .outer-box:hover .inner-box {
+          opacity: 1;
+          -webkit-transform: rotate(90deg)
+        }       
+  
+        .outer-box:hover {
+        }      
+        
+        .outer-circle {
+          margin: -35px 0px 0px 150px;
+          float: left;
+          position: relative;
+          width: 200px;
+          height: 200px;
+          background: #333;
+          border-radius: 1000px;
+        }            
+        
+        .inner-circle {
+          top: 85px;
+          position: absolute;
+        }
+        
+       .inner-circle:nth-child(1) {
+          height: 30px;
+          width: 30px;
+          left: 10px;
+          background: orange;
+          border-radius: 15px;
+          -webkit-transform-origin: 75px 0px;
+          -webkit-transition: all 1s ease;
+        }
+        
+        .outer-circle:hover .inner-circle:nth-child(1) {
+          -webkit-transform: rotate(360deg);
+        }
+        
+       .inner-circle:nth-child(2) {
+          height: 30px;
+          width: 30px;
+          left: 40px;
+          background: rgba(50, 200, 150, 0.8);
+          border-radius: 15px;
+          -webkit-transform-origin: 45px 0px;
+          -webkit-transition: all 3s ease;
+        }
+        
+        .outer-circle:hover .inner-circle:nth-child(2) {
+          -webkit-transform: rotate(-360deg);
+        }
+
+    </style>
+  </head>
+
+  <body>
+     <div id="container">
+       
+       <div class="outer-box">
+         <div class="inner-box"></div>
+         <div class="inner-box"></div>
+         <div class="inner-box"></div>
+         <div class="inner-box"></div>
+       </div>
+       
+       <div class="outer-circle">
+          <div class="inner-circle"></div>
+          <div class="inner-circle"></div>
+       </div>
+       
+    </div>	
+  </body>
+
+</html>

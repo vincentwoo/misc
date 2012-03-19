@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    #stage {
+      margin: 60px auto 100px auto; 
+      width: 700px;
+    }
+
+    #stage .box {
+      position: relative;
+      width:100px;
+      height: 100px;
+      background: #333;
+      border: 1px solid #333;
+      margin: 15px 0px;
+      font-weight: bold;
+      color: #ccc;
+    }
+    
+    #a {
+      -webkit-transition: all 500ms ease;
+    }
+    
+    #a:hover {
+      width: 500px;
+    }
+    
+    #b {
+      width: 500px;
+    }
+    
+    #b .box{
+      -webkit-transition: all 500ms ease;
+    }
+    
+    #b:hover .box {
+      margin-left: 400px;
+    }
+    
+    #c {
+      width: 500px;
+      height: 20px;
+      border: 1px solid #eee;
+    }
+    
+    #c .sub-box {
+      -webkit-transition: width 1s linear,
+        background 3s ease;
+      width: 0px;
+      height: 100%;
+      background: red;
+    }
+    
+    #c:hover .sub-box {
+       width: 100%;
+       background: green;
+    }
+    
+    #d {
+      background: #a00;
+      width: 30px;
+      height: 30px;
+      margin-top: 15px;
+      opacity: .6;
+      border: 1px solid #F00;
+      -webkit-transition: width 1s ease,
+         height 1s ease 1s;
+    }
+    
+    #d:hover {
+      border-color: #000;
+      background: #666;
+      width: 500px;
+      height: 200px;
+    }
+    
+  </style>
+</head>
+  
+  
+<body>
+  <div id="stage">
+        
+    <div class="box" id="a"></div>
+        
+    <div id="b">
+      <div class="box">wieeeeeew!</div>
+    </div>
+        
+    <div id="c">
+      <div class="sub-box"></div>
+    </div>
+        
+    <div id="d">
+      +
+    </div>
+                      
+  </div>
+  
+  </body>
+</html>

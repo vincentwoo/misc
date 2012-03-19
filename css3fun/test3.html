@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    #stage {
+      margin: 200px 10px;
+      position: relative;
+      -webkit-perspective: 300;
+      -webkit-transition: all 750ms ease-out;
+      -webkit-perspective-origin: 600px -300px;
+      -webkit-transform-style: preserve-3d;
+    }
+    
+    #stage:hover {
+      -webkit-perspective-origin: 600px 600px;
+    }    
+    
+    .square {
+      width: 450px;
+      height: 450px;
+      background: rgba(255, 187, 136, 0.2);
+      #border-radius: 225px;
+      #border: 2px solid #f00;
+      position: absolute;
+      top: 0;
+      left: 0;
+      -webkit-transition: all 750ms ease-out;
+      opacity: .6;
+    }
+    
+    .square:nth-child(1) {
+      background: rgba(255, 187, 136, 1);
+      -webkit-transform: translateZ(-50px);      
+    }
+    .square:nth-child(2) {
+      background: rgba(250, 150, 150, 1);
+      -webkit-transform: translateZ(-100px);      
+    }
+    .square:nth-child(3) {
+      background: rgba(200, 250, 0, 1);      
+     -webkit-transform: translateZ(-150px);            
+    }    
+    .square:nth-child(4) {
+      background: rgba(0, 150, 240, 1);
+     -webkit-transform: translateZ(-200px);            
+    }      
+    .square:nth-child(5) {
+      background: rgba(256, 150, 240, 1);
+     -webkit-transform: translateZ(-250px);            
+    }
+    
+    .square:nth-child(1):hover {
+    -webkit-transform: translateZ(0px);  
+    }
+    .square:nth-child(2):hover {
+    -webkit-transform: translateZ(-50px);  
+
+    }
+    .square:nth-child(3):hover {
+    -webkit-transform: translateZ(-100px);  
+
+    }    
+    .square:nth-child(4):hover {
+-webkit-transform: translateZ(-150px);  
+    }      
+        
+  </style>
+</head>
+<body>
+  <div id="stage">
+      <div class="square"></div>
+      <div class="square"></div>  
+      <div class="square"></div>    
+      <div class="square"></div>    
+      <div class="square"></div>        
+  </div>
+  
+</body>
+</html>
