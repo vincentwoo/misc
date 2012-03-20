@@ -40,7 +40,12 @@
       width: 30px;
       height: 1.5em;
     }
+    a {
+      display: block;
+      color: #666;
+    }
   </style>
+  <script type="text/javascript" src="examples.js"></script>
   <script type="text/javascript" src="contour.js"></script>
 </head>
 <body>
@@ -48,11 +53,16 @@
     <div id="spacer">
       <p>
         Drag a .tsv topography file onto the window to see a map for it, or hit
-        one of the buttons below to use a sample file.
+        one of the links below to use a sample file.
+      </p>
+      <p>
+        Don't see anything? Remember to adjust your isoline interval.
       </p>
       <p>
         <label for="interval">Isoline interval:</label>
-        <input type="text" id="interval" value="15" />
+        <input type="text" id="interval" value="0.5" />
+      </p>
+      <p id="samples">
       </p>
     </div>
   </div>
