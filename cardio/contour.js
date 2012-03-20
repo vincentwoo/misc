@@ -52,7 +52,7 @@ window.addEventListener('load', function() {
   for (example in EXAMPLES) {
     (function (example) {
       var a = document.createElement('a');
-      a.innerText = example;
+      a.innerHTML = example;
       a.href= "#";
       a.addEventListener('click', function() {
         data = EXAMPLES[example];
