@@ -1,4 +1,28 @@
+var SEGS = [
+  [],                                       // 0, no contour
+  [{s1: 'L', s2: 'B'}],                     // 1
+  [{s1: 'R', s2: 'B'}],                     // 2
+  [{s1: 'L', s2: 'R'}],                     // 3
+  [{s1: 'T', s2: 'R'}],                     // 4
+  [{s1: 'L', s2: 'T'}, {s1: 'B', s2: 'R'}], // 5, saddle
+  [{s1: 'B', s2: 'T'}],                     // 6
+  [{s1: 'L', s2: 'T'}],                     // 7
+  [{s1: 'L', s2: 'T'}],                     // 8
+  [{s1: 'B', s2: 'T'}],                     // 9
+  [{s1: 'L', s2: 'B'}, {s1: 'T', s2: 'R'}], // 10, saddle
+  [{s1: 'T', s2: 'R'}],                     // 11
+  [{s1: 'L', s2: 'R'}],                     // 12
+  [{s1: 'R', s2: 'B'}],                     // 13
+  [{s1: 'L', s2: 'B'}],                     // 14
+  [],                                       // 15, no contour
+];
+
 window.addEventListener('load', function() {
+  
+  window.addEventListener('dragover', function(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+  });
   
   window.addEventListener('drop', function(evt) {
     evt.stopPropagation();
@@ -6,54 +30,50 @@ window.addEventListener('load', function() {
     var file = evt.dataTransfer.files[0];
     reader = new FileReader();
     reader.onloadend = function(e) {
-    console.log(e);
       parse(e.target.result);
     }
     reader.readAsText(file);
   });
   
-  var interval = 15;
-  var max = -Infinity, min = Infinity;
+  window.addEventListener('resize', resize);
+  
+  var interval = document.getElementById('interval');
   var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
-  var segs = [
-    [],                                       // 0, no contour
-    [{s1: 'L', s2: 'B'}],                     // 1
-    [{s1: 'R', s2: 'B'}],                     // 2
-    [{s1: 'L', s2: 'R'}],                     // 3
-    [{s1: 'T', s2: 'R'}],                     // 4
-    [{s1: 'L', s2: 'T'}, {s1: 'B', s2: 'R'}], // 5, saddle
-    [{s1: 'B', s2: 'T'}],                     // 6
-    [{s1: 'L', s2: 'T'}],                     // 7
-    [{s1: 'L', s2: 'T'}],                     // 8
-    [{s1: 'B', s2: 'T'}],                     // 9
-    [{s1: 'L', s2: 'B'}, {s1: 'T', s2: 'R'}], // 10, saddle
-    [{s1: 'T', s2: 'R'}],                     // 11
-    [{s1: 'L', s2: 'R'}],                     // 12
-    [{s1: 'R', s2: 'B'}],                     // 13
-    [{s1: 'L', s2: 'B'}],                     // 14
-    [],                                       // 15, no contour
-  ];
+  
+  function resize() {
+    canvas.setAttribute("width", canvas.offsetWidth);
+    canvas.setAttribute("height", canvas.offsetHeight);
+    beginDraw();
+  }
+  resize();
+  
+  interval.addEventListener('change', beginDraw);
+  interval.addEventListener('keyup', beginDraw);
   
   // make these global so I don't have to think about them
-  var data;
+  var data = null;
   var threshold;
   
   function parse(text) {
     data = text.split('\n').map( function(line) {
       return line.split('\t').map(parseFloat);
     });
-    console.log(data);
+    beginDraw();
+  }
   
+  function beginDraw() {
+    if (!data) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    var ival = parseFloat(interval.value);
+    var max = -Infinity, min = Infinity;
     data.forEach (function(row) {
       row.forEach (function(val) {
         if (val > max) max = val;
         if (val < min) min = val;
       });
     });
-
-    ctx.clearRect(0, 0, 500, 350);
-    for (threshold = min; threshold <= max; threshold += interval) {
+    for (threshold = min; threshold <= max; threshold += ival) {
       marching_squares(data.map (function(row) {
         return row.map (function(val) {
           return (val > threshold) ? 0 : 1; // flipped, 0 if above
@@ -111,7 +131,7 @@ window.addEventListener('load', function() {
   function draw(cells) {
     for (var row = 0; row < cells.length; row++) {
       for (var col = 0; col < cells[0].length; col++) {
-        segs[cells[row][col]].forEach( function(seg) {
+        SEGS[cells[row][col]].forEach( function(seg) {
           var p1 = pointForSide(row, col, seg.s1);
           var p2 = pointForSide(row, col, seg.s2);
           ctx.beginPath();
