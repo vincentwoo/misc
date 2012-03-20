@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<style>
+  @-webkit-keyframes wave {
+    50% {
+      -webkit-transform: scaleY(20);
+    }
+    100% {
+      -webkit-transform: scaleY(1);
+    }
+  }
+  #footer {
+    position: relative;
+    margin: 200px 30px;
+    max-width: 1020px;
+    height: 20px;
+    background: #eeeeee;
+    color: #777;
+    font-size: 13px;
+    padding: 15px;
+  }
+  
+  #footer span,
+  #footer a {
+    padding: 0px 3px;
+  }
+  
+  #tiles-container {
+    position: absolute;
+    right: 30px;
+    top: -13px;
+    padding: 10px
+  }
+
+  .goog-tile {
+    position: relative;
+    width: 30px;
+    height: 4px;
+    background: #d00;
+    margin: 0px 0px;
+    float: left;
+    -webkit-transform-origin: center bottom;
+  }
+  
+   #tiles-container:hover .goog-tile {
+     -webkit-animation: wave;
+    -webkit-animation-duration: 3s;
+    -webkit-animation-timing-function: linear;
+    -webkit-animation-delay: 0s;
+    -webkit-animation-fill-mode: forwards;
+  }
+  .goog-tile:nth-child(1) {
+    background: #3369E8;
+    -webkit-animation-name: wave1;
+    -webkit-animation-delay: 600ms;
+  }
+  .goog-tile:nth-child(2) {
+    background: #D50F25;
+    -webkit-animation-name: wave1;
+    -webkit-animation-delay: 200ms;
+  }
+  .goog-tile:nth-child(3) {
+    background: #EEB211;
+    -webkit-animation-name: wave2;
+    -webkit-animation-delay: 500ms;
+  }
+  .goog-tile:nth-child(4) {
+    background: #009925;
+    -webkit-animation-name: wave1;
+    -webkit-animation-delay: 450ms;
+  }
+        
+</style>
+
+ <div id="footer">
+    <span> &#169; Google Music </span>
+      <a href="#">Privacy Policy</a>-<a href="#">Terms of Service</a>
+    
+    <div id="tiles-container">
+      <div class="goog-tile"></div>
+      <div class="goog-tile"></div>
+      <div class="goog-tile"></div>
+      <div class="goog-tile"></div>
+    </div>
+    
+ </div>
