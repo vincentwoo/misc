@@ -57,6 +57,7 @@ window.addEventListener('load', function() {
       a.addEventListener('click', function() {
         data = EXAMPLES[example];
         beginDraw();
+        return false;
       });
       samples.appendChild(a);
     })(example);
@@ -74,7 +75,6 @@ function parse(text) {
     return line.split('\t').map(parseFloat);
   });
   if (data[data.length-1].length != data[0].length) data.pop(); // ghetto trailing newline detection
-  console.log(data);
   beginDraw();
 }
 
@@ -98,17 +98,16 @@ function marching_squares(ival) {
   var cols = data[0].length - 1;
   var scale = cols / rows > canvas.width / canvas.height ?
     canvas.width / cols : canvas.height / rows;
-    console.log(scale);
   for (var threshold = min; threshold <= max; threshold += ival) {
     marching_squares_threshold(data.map (function(row) {
       return row.map (function(val) {
         return (val > threshold) ? 0 : 1; // flipped, 0 if above
       });
-    }), rows, cols, threshold, scale);
+    }), rows, cols, threshold, min, max, scale);
   }
 }
 
-function marching_squares_threshold(filtered, rows, cols, threshold, scale) {
+function marching_squares_threshold(filtered, rows, cols, threshold, min, max, scale) {
   var cells = new Array(rows);
   for (var i = 0; i < rows; i++) {
     cells[i] = new Array(cols);
@@ -118,10 +117,15 @@ function marching_squares_threshold(filtered, rows, cols, threshold, scale) {
       var TR = filtered[i][j+1];
       var BL = filtered[i+1][j];
       var BR = filtered[i+1][j+1];
-      cells[i][j] = 8 * TL + 4 * TR + 2 * BR + BL;
+      var idx = 8 * TL + 4 * TR + 2 * BR + BL;
+      if (idx == 5 || idx == 10) {
+        var avg = (data[i][j] + data[i+1][j] + data[i][j+1] + data[i+1][j+1]) / 4;
+        if (avg > threshold) idx = (idx == 5) ? 10 : 5;
+      }
+      cells[i][j] = idx;
     }
   }
-  draw(cells, threshold, scale);
+  draw(cells, threshold, min, max, scale);
 }
 
 function interp(a, b, threshold) {
@@ -151,7 +155,9 @@ function pointForSide(row, col, threshold, side) {
   return {x: x, y: y};
 }
 
-function draw(cells, threshold, scale) {
+function draw(cells, threshold, min, max, scale) {
+  var alpha = (threshold - min) / max;
+  ctx.strokeStyle = 'rgb(' + Math.round(alpha * 255) + ', ' + Math.round((1-alpha) * 255) + ', 0)';
   for (var row = 0; row < cells.length; row++) {
     for (var col = 0; col < cells[0].length; col++) {
       SEGS[cells[row][col]].forEach( function(seg) {
