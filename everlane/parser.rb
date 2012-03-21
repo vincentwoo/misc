@@ -1,11 +1,12 @@
 # usage
-# vwoo$ ruby parser.rb "a Qa Zj PaZZZZg QQQaaaa QQQaaaaa"
+# woo$ ruby parser.rb "a Qa Zj PaZZZZg QQQaaaa QQQaaaaa ZZQaZ"
 # a VALID
 # Qa INVALID
 # Zj VALID
 # PaZZZZg VALID
 # QQQaaaa VALID
 # QQQaaaaa INVALID
+# ZZQaZ INVALID
 
 def validate(input)
    valid, idx = validate_recursive(input.split(//), 0)
@@ -15,7 +16,7 @@ end
 
 # returns t/f, index one past the end of the message beginning at idx
 def validate_recursive(chars, idx)
-  return if (idx > chars.size)
+  return false, idx + 1 if (idx >= chars.size)
   char = chars[idx]
   case char
   when 'a'..'j'
@@ -24,7 +25,7 @@ def validate_recursive(chars, idx)
     return validate_recursive chars, idx+1
   when 'M', 'K', 'P', 'Q'
     first = validate_recursive chars, idx+1
-    return false, idx + 1 unless first[0]
+    return first unless first[0]
     return validate_recursive chars, first[1]
   else
     return false, idx + 1
