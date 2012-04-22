@@ -1,5 +1,6 @@
 n = gets.to_i
-@sieveMax = 500
+#n = 100000
+@sieveMax = 2830
 @sieve = [2]
 additivePrimes = [2]
 i = 3
@@ -19,8 +20,13 @@ while true
   i += 2
 end
 
+@map = {}
+@sieve.each {|i| @map[i] = true}
+
 def isPrime(num)
+  return false if num <= 1
   ceil = Math.sqrt(num).ceil
+  #puts("TOO HIGH " + ceil.to_s) if ceil > @sieveMax
   for prime in @sieve
     break if prime == num || prime > ceil
     return false if num % prime == 0
@@ -38,17 +44,13 @@ def digitSum(num)
 end
 
 i = 3
-#require 'pp'
 while true
   if additivePrimes.length == n
     puts additivePrimes.last
-    #pp additivePrimes
     break
   end
-  
-  if isPrime(digitSum(i)) and isPrime(i)
+  if @map.member?(digitSum(i)) and isPrime(i)
     additivePrimes.push i
   end
-  
   i += 2
- end
+end
