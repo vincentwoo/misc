@@ -10,27 +10,25 @@
 
 def validate(input)
    valid, idx = validate_recursive(input.split(//), 0)
-   return false unless valid
-   return idx == input.size
+   valid ? idx == input.size : false
 end
 
 # returns t/f, index one past the end of the message beginning at idx
 def validate_recursive(chars, idx)
-  return false, idx + 1 if (idx >= chars.size)
-  char = chars[idx]
-  case char
+  return false, idx + 1 if idx >= chars.size
+  case chars[idx]
   when 'a'..'j'
     return true, idx + 1
   when 'Z'
-    return validate_recursive chars, idx+1
+    return validate_recursive chars, idx + 1
   when 'M', 'K', 'P', 'Q'
-    first = validate_recursive chars, idx+1
-    return first unless first[0]
-    return validate_recursive chars, first[1]
+    chunk = validate_recursive chars, idx + 1
+    return chunk unless chunk.first
+    return validate_recursive chars, chunk.last
   else
     return false, idx + 1
   end
-  validate_recursive(chars, idx+1)
+  validate_recursive chars, idx + 1
 end
 
 inputs = ARGV[0].split
