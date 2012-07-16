@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<body>
+
+<textarea id="names" rows="10" cols="60">
+firstname middlename lastname
+firstname2 middlename2 lastname2
+</textarea>
+<br />
+<textarea id="domains" rows="10" cols="60">
+gmail.com
+yahoo.com
+hotmail.com
+</textarea>
+<br />
+<button id="go">Go</button>
+<br />
+<textarea id="out" rows="20" cols="60">Output appears here</textarea>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script>
+  function permutations(arr) {
+    if (arr.length == 1) return [arr];
+    var ret = [];
+    for (var i = 0; i < arr.length; i++) {
+      var clone = arr.slice(0);
+      var elem = clone.splice(i, 1);
+      var suffixes = permutations(clone);
+      ret = ret.concat(suffixes.map(function (suffix) { return elem.concat(suffix); } ));
+    }
+    return ret;
+  }
+
+  function combinations(arr, n, i) {
+    var ret = [];
+    for (var idx = i; idx < arr.length; idx++) {
+      var elem = arr[idx];
+      var combos;
+      if (n > 1) {
+        combos = combinations(arr, n-1, idx + 1).map(function(combo) {
+          return [elem].concat(combo);
+        });
+      } else {
+        combos = [[elem]];
+      }
+      ret = ret.concat(combos);
+    }
+    return ret;
+  }
+
+  function all_combinations(arr) {
+    var ret = [];
+    for (var i = 1; i <= arr.length; i++) {
+      ret = ret.concat(combinations(arr, i, 0));
+    }
+    return ret;
+  }
+
+  function initialize(arr) {
+    var ret = [arr];
+    var indices = [];
+    for (var i = 0; i < arr.length; i++) {
+      indices.push(i);
+    }
+    all_combinations(indices).forEach(function(combo) {
+      var clone = arr.slice(0);
+      combo.forEach(function(idx) {
+        clone[idx] = clone[idx][0];
+      });
+      ret.push(clone);
+    });
+    return ret;
+  }
+
+  $(function() {
+    $('#names, #domains').one('focus', function() {
+      $(this).val('');
+    });
+    $('#out').focus(function() {
+      setTimeout(function() {
+        $('#out').select();
+      }, 100);
+    });
+    $('#go').click(function() {
+      var names = $('#names').val().trim().split('\n').map(function(str) { return str.split(' '); });
+      var domains = $('#domains').val().trim().split('\n');
+      var out = $('#out');
+      var output = '';
+
+      names.forEach(function (name) {
+        all_combinations(name).forEach(function (combo) {
+          permutations(combo).forEach(function (perm) {
+            initialize(perm).forEach(function (initialized) {
+              domains.forEach(function (domain) {
+                if (initialized.length > 1) {
+                  ['.', '_', ''].forEach(function (seperator) {
+                    output += initialized.join(seperator) + '@' + domain + '\n';
+                  });
+                } else {
+                  output += initialized[0] + '@' + domain + '\n';
+                }
+              })
+            });
+          });
+        });
+      });
+
+      out.text(output);
+    });
+  });
+</script>
+</body>
+</html>
