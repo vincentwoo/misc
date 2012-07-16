@@ -94,10 +94,10 @@ hotmail.com
               domains.forEach(function (domain) {
                 if (initialized.length > 1) {
                   ['.', '_', ''].forEach(function (seperator) {
-                    output += initialized.join(seperator) + '@' + domain + '\n';
+                    output += initialized.join(seperator) + '@' + domain + ',\n';
                   });
                 } else {
-                  output += initialized[0] + '@' + domain + '\n';
+                  output += initialized[0] + '@' + domain + ',\n';
                 }
               })
             });
