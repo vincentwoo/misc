@@ -14,8 +14,7 @@ def num_to_coords num
   ring = num_to_ring num
   puts "calcing for #{num}"
 
-  offset = ring_to_max_num(ring) - cells_on_ring(ring)
-  num - offset - 1
+  offset = num - ring_to_max_num(ring - 1) - 1
 end
 
 for i in 1..50
