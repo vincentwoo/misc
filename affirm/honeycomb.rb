@@ -17,27 +17,19 @@ def num_to_ring num
   (Math.sqrt((4 * num - 1) / 12.0) - 0.5).ceil
 end
 
-def cells_on_ring num
-  num * 6
-end
-
-def side_length_on_ring num
-  num
-end
-
 def num_to_coords num
   return Vector[0, 0] if num == 1
 
   ring = num_to_ring num
 
   max_num = ring_to_max_num ring
-  side = side_length_on_ring ring
+  side_length = ring
 
-  side_number = (max_num - num) / side
-  side_offset = (max_num - num) % side
+  side_number = (max_num - num) / side_length
+  side_offset = (max_num - num) % side_length
 
   translation = SIDE_TRANSLATIONS[side_number]
-  (translation[:init] * side) + (translation[:incr] * side_offset)
+  (translation[:init] * side_length) + (translation[:incr] * side_offset)
 end
 
 for i in 1..19
