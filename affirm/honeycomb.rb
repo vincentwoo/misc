@@ -1,12 +1,12 @@
 require 'matrix'
 
 SIDE_TRANSLATIONS = {
-  0 => {init: Vector[-1,  0], incr: Vector[ 1,  1]},
-  1 => {init: Vector[ 0,  1], incr: Vector[ 1,  0]},
-  2 => {init: Vector[ 1,  1], incr: Vector[ 0, -1]},
-  3 => {init: Vector[ 1,  0], incr: Vector[-1, -1]},
-  4 => {init: Vector[ 1, -1], incr: Vector[-1,  0]},
-  5 => {init: Vector[-1, -1], incr: Vector[ 0,  1]}
+  0 => Vector[-1,  0],
+  1 => Vector[ 0,  1],
+  2 => Vector[ 1,  1],
+  3 => Vector[ 1,  0],
+  4 => Vector[ 1, -1],
+  5 => Vector[-1, -1]
 }
 
 def ring_to_max_num ring
@@ -29,7 +29,8 @@ def num_to_coords num
   side_offset = (max_num - num) % side_length
 
   translation = SIDE_TRANSLATIONS[side_number]
-  (translation[:init] * side_length) + (translation[:incr] * side_offset)
+  transition = SIDE_TRANSLATIONS[(side_number + 1) % 6] - translation
+  (translation * side_length) + (transition * side_offset)
 end
 
 for i in 1..19
