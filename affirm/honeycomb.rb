@@ -1,4 +1,13 @@
-AXES = [[:x, 1], [:y, 1], [:z, 1], [:x, -1], [:y, -1], [:z, -1]]
+require 'matrix'
+
+SIDE_TRANSLATIONS = {
+  0 => {init: Vector[-1,  0], incr: Vector[ 1,  1]},
+  1 => {init: Vector[ 0,  1], incr: Vector[ 1,  0]},
+  2 => {init: Vector[ 1,  1], incr: Vector[ 0, -1]},
+  3 => {init: Vector[ 1,  0], incr: Vector[-1, -1]},
+  4 => {init: Vector[ 1, -1], incr: Vector[-1,  0]},
+  5 => {init: Vector[-1, -1], incr: Vector[ 0,  1]}
+}
 
 def ring_to_max_num ring
   3 * ring**2 + 3 * ring + 1
@@ -17,8 +26,7 @@ def side_length_on_ring num
 end
 
 def num_to_coords num
-  coord = {x: 0, y: 0, z: 0}
-  return coord if num == 1
+  return Vector[0, 0] if num == 1
 
   ring = num_to_ring num
 
@@ -28,11 +36,8 @@ def num_to_coords num
   side_number = (max_num - num) / side
   side_offset = (max_num - num) % side
 
-  primary_axis, secondary_axis = AXES.rotate(side_number)[0..1]
-
-  coord[primary_axis.first] = primary_axis.last * (side - side_offset)
-  coord[secondary_axis.first] = secondary_axis.last * side_offset
-  coord
+  translation = SIDE_TRANSLATIONS[side_number]
+  (translation[:init] * side) + (translation[:incr] * side_offset)
 end
 
 for i in 1..19
