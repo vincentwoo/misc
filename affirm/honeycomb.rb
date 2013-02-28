@@ -1,3 +1,5 @@
+AXES = [[:x, 1], [:y, 1], [:z, 1], [:x, -1], [:y, -1], [:z, -1]]
+
 def ring_to_max_num ring
   3 * ring**2 + 3 * ring + 1
 end
@@ -15,28 +17,24 @@ def side_length_on_ring num
 end
 
 def num_to_coords num
+  coord = {x: 0, y: 0, z: 0}
+  return coord if num == 1
+
   ring = num_to_ring num
-  puts "calcing for #{num}"
 
   max_num = ring_to_max_num ring
   side = side_length_on_ring ring
 
-  case num
-    when (max_num-side)..max_num
-      'quad 1'
-    when (max_num-side*2)..(max_num-side)
-      'quad 2'
-    when (max_num-side*3)..(max_num-side*2)
-      'quad 3'
-    when (max_num-side*4)..(max_num-side*3)
-      'quad 4'
-    when (max_num-side*5)..(max_num-side*4)
-      'quad 5'
-    when (max_num-side*6)..(max_num-side*5)
-      'quad 6'
-  end
+  side_number = (max_num - num) / side
+  side_offset = (max_num - num) % side
+
+  primary_axis, secondary_axis = AXES.rotate(side_number)[0..1]
+
+  coord[primary_axis.first] = primary_axis.last * (side - side_offset)
+  coord[secondary_axis.first] = secondary_axis.last * side_offset
+  coord
 end
 
-for i in 1..7
-  puts num_to_coords(i)
+for i in 1..19
+  puts "#{i}:\t#{num_to_coords(i)}"
 end
