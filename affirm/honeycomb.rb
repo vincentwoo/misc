@@ -1,6 +1,8 @@
+# Solution + extra credit for affirm.com/jobs
+
 require 'matrix'
 
-SIDE_TRANSLATIONS = {
+UNIT_HEXAGON = {
   0 => Vector[-1,  0],
   1 => Vector[ 0,  1],
   2 => Vector[ 1,  1],
@@ -21,19 +23,19 @@ def num_to_coords num
   return Vector[0, 0] if num == 1
 
   ring = num_to_ring num
-  max_num = ring_to_max_num ring
+  offset = ring_to_max_num(ring) - num
 
-  side_number = (max_num - num) / ring
-  side_offset = (max_num - num) % ring
+  side_number = offset / ring
+  side_offset = offset % ring
 
-  translation = SIDE_TRANSLATIONS[side_number]
-  transition = SIDE_TRANSLATIONS[(side_number + 1) % 6] - translation
+  translation = UNIT_HEXAGON[side_number]
+  transition = UNIT_HEXAGON[(side_number + 1) % 6] - translation
   (translation * ring) + (transition * side_offset)
 end
 
 def length_of_delta delta
   delta = -1 * delta if delta.all? {|i| i < 0}
-  delta.all? {|i| i > 0} ? delta.max : delta.max - delta.min
+  [delta.max, delta.max - delta.min].max
 end
 
 def distance_between num1, num2
@@ -55,7 +57,7 @@ def coords_to_num pos
   end
 
   max_num = ring_to_max_num ring
-  offset = side * ring + length_of_delta(pos - (SIDE_TRANSLATIONS[side] * ring))
+  offset = side * ring + length_of_delta(pos - (UNIT_HEXAGON[side] * ring))
   offset == ring * 6 ? max_num : max_num - offset
 end
 
