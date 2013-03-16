@@ -46,7 +46,7 @@ def num_to_words num
 end
 
 def print_tuple tuple, suffix
-  return if tuple == 0
+  return '' if tuple == 0
 
   ret = ''
   until NUMS[tuple]
@@ -68,3 +68,4 @@ num_to_words 10
 num_to_words 18
 num_to_words 212
 num_to_words 111111111
+num_to_words 1000000
