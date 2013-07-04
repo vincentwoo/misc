@@ -1,0 +1,102 @@
+<html>
+  <head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="data.js"></script>
+    <title>TAXONOMY</title>
+
+    <style>
+      body {
+        padding: 30px 0 0 30px;
+      }
+      ul {
+        margin: 0;
+        display: none;
+        list-style: none;
+        padding: 0;
+      }
+      ul li {
+        border: 1px solid #ccc;
+        width: 120px;
+        min-height: 20px;
+        padding: 10px;
+        position: relative;
+      }
+      li ul {
+        position: absolute;
+        left: 140px;
+        top: -1px;
+      }
+      ul li:hover, ul li.selected {
+        background: #ccc;
+        cursor: pointer;
+      }
+      .description {
+
+      }
+      #root {
+        display: block;
+      }
+      #crumb {
+        display: block;
+        margin:30px 0;
+        width: 350px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <input id="crumb">
+    <ul id="root"></ul>
+
+    <script>
+      var root = $('#root')
+      var items = taxonomy_data.items;
+      taxonomy_data.topLevelItems.forEach(function(key) {
+        buildTree(root, key)
+      });
+
+      function buildTree(elem, key) {
+        var data = items[key]
+        var hasChildren = !!data.children;
+        var li = $(
+          '<li>' + data.title + (hasChildren ? ' ->' : '') + '</li>'
+        ).appendTo(elem)
+          .data('title', data.title)
+          .attr('id', key)
+        var ul = $('<ul></ul>').appendTo(li);
+        if (data.description) {
+          //data.description.replace(/(\d+)/, '<a>$1</a>' )
+          li.append('<div class="description">' + data.description + '</div>');
+        }
+        if (!hasChildren) return;
+        data.children.forEach(function(child) {
+          buildTree(ul, child);
+        });
+      }
+
+      $('li').click(function() {
+        $('#root .selected').removeClass('selected');
+        $('#root ul').hide();
+        $(this).addClass('selected');
+        $(this).parents('li').addClass('selected');
+        $(this).find('>ul').show();
+        $(this).parents('ul').show();
+
+        var crumbs = $(this).parents('li').map(function(idx, parent) {
+          return $(parent).data('title');
+        }).get();
+
+        crumbs.unshift( $(this).data('title') );
+        crumbs.reverse();
+
+        $('#crumb').val(crumbs.join(' > '));
+
+        return false;
+      });
+
+      function setCategory(id) {
+        $('#' + id).click();
+      }
+    </script>
+  </bdoy>
+</html>
