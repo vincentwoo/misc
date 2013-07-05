@@ -5,7 +5,7 @@ def hex_decode str
 end
 
 def hex_encode str
-  str.unpack('H*')
+  str.unpack('H*').join
 end
 
 def encode64 bytes
@@ -107,7 +107,21 @@ def problem4
     out, 'XORd by', chr
 end
 
-problem1
-problem2
-problem3
-problem4
+def rot_xor str, key
+  key_bytes = key.bytes
+  str.bytes.map.with_index { |byte, idx|
+    (byte ^ key_bytes[idx % key_bytes.length]).chr
+  }.join
+end
+
+def problem5
+  str = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"
+  puts 'problem 5: repeated-key XORing', str, 'with the key ICE yields'
+  puts hex_encode(rot_xor(str, 'ICE'))
+end
+
+# problem1
+# problem2
+# problem3
+# problem4
+problem5
