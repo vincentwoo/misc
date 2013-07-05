@@ -1,4 +1,5 @@
 require 'base64'
+require 'pp'
 
 def hex_decode str
   [str].pack('H*')
@@ -71,7 +72,7 @@ def score_english str
   end
   sum = 0
   CHAR_FREQUENCIES.each do |letter, freq|
-    sum += (freq - frequencies[letter]).abs
+    sum += ((freq - frequencies[letter]).abs ** 2)
   end
   sum += (str.chars.reject {|letter|
     (CHAR_FREQUENCIES.keys + [' ']).include? letter
@@ -79,31 +80,31 @@ def score_english str
   sum
 end
 
+def single_byte_xor_decode str
+  (65..122).map do |i|
+    out = str.bytes.map { |b| (b ^ i).chr }.join
+    [score_english(out), i.chr, out, str]
+  end
+end
+
 def problem3
   orig = '1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736'
   str = hex_decode orig
 
-  possibilities = (0..255).map do |i|
-    out = str.bytes.map { |b| (b ^ i).chr }.join
-    [score_english(out), i.chr, out]
-  end
+  possibilities = single_byte_xor_decode str
 
-  winner = possibilities.sort_by {|score, _| score}.first
-  puts 'problem 3: decrypting', orig, 'yields',
-    winner.last, 'XORd by', winner[1]
+  score, key, out = possibilities.sort_by {|score, _| score}.first
+  puts 'problem 3: decrypting', orig, 'yields', out, 'XORd by', key
 end
 
 def problem4
   possibilities = []
   File.foreach('problem_4.txt') do |orig|
     str = hex_decode orig
-    possibilities += (0..255).map do |i|
-      out = str.bytes.map { |b| (b ^ i).chr }.join
-      [score_english(out), i.chr, out, orig]
-    end
+    possibilities += single_byte_xor_decode(str)
   end
   score, chr, out, orig = possibilities.sort_by {|score, _| score}.first
-  puts 'problem 4: decrypting', orig, 'yields',
+  puts 'problem 4: decrypting', hex_encode(orig), 'yields',
     out, 'XORd by', chr
 end
 
@@ -120,8 +121,67 @@ def problem5
   puts hex_encode(rot_xor(str, 'ICE'))
 end
 
+$weights = {}
+def hamming_weight num
+  return $weights[num] if $weights[num]
+  weight = 0
+  tmp = num
+  while tmp > 0
+    weight += (tmp & 1)
+    tmp >>= 1
+  end
+  $weights[num] = weight
+end
+
+def hamming_distance bytes1, bytes2
+  bytes1.zip(bytes2).map {|b1, b2|
+    hamming_weight(b1 ^ b2)
+  }.inject(:+)
+end
+
+def problem6
+  str = Base64.decode64 File.read('problem_6.txt')
+  sizes = (2..40).map do |keysize|
+    blocks = str.bytes.each_slice(keysize).first(4)
+    dist = hamming_distance(blocks[0], blocks[1])
+      + hamming_distance(blocks[2], blocks[3])
+    dist /= (keysize.to_f * 2)
+    [dist, keysize]
+  end
+
+  sizes.sort_by! {|dist, _| dist}
+  sizes = sizes.first(3).map {|_, size| size}
+
+  puts 'key sizes: ', sizes
+
+  keys = sizes.map do |keysize|
+    blocks = str.chars.each_slice(keysize).to_a
+    while blocks.last.length != keysize
+      blocks.last.push nil
+    end
+    blocks = blocks.transpose.map &:compact
+
+    key = blocks.map do |block|
+      results = single_byte_xor_decode(block.join)
+      results.sort_by! &:first
+      results.first[1]
+    end
+    key.join
+  end
+
+  puts 'KEYS: ', '=' * 80
+  puts keys
+
+  puts 'answers:', '=' * 80
+
+  keys.each do |key|
+    puts rot_xor(str, key)[0..100], '=' * 80
+  end
+end
+
 # problem1
 # problem2
 # problem3
 # problem4
-problem5
+# problem5
+problem6
