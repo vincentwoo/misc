@@ -1,0 +1,38 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+<style>
+  .container {
+    width: 500px;
+    height: 500px;
+  }
+  .container div {
+    background: blue;
+    width: 9px;
+    height: 9px;
+    margin: 1px 1px 0 0;
+    float: left;
+  }
+
+  .container .selected {
+    background: red;
+  }
+
+  .container .selected + div {
+    background: green;
+  }
+</style>
+
+<div class="container"></div>
+
+<script>
+  $('.container').each(function () {
+    var newDivs = ''
+    for (var i = 0; i < 50 * 50; i++) {
+      newDivs += '<div/>'
+    }
+    $(this).append(newDivs);
+  }).on('click', 'div', function (event) {
+    $(this).addClass('selected').siblings('.selected').removeClass('selected');
+  });
+
+</script>
