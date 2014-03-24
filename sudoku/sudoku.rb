@@ -11,59 +11,54 @@ def output grid
   end
 end
 
-def block_for_coords grid, row, col
+$meno = {}
+def block_coords row, col
+  hash = row * 2 + col * 13
   row = row / 3 * 3
   col = col / 3 * 3
-  ret = []
-  (row..row+2).each do |row|
-    (col..col+2).each do |col|
-      ret.push grid[row][col]
-    end
+  return $meno[hash] if $meno[hash]
+  $meno[hash] = (row..row+2).to_a.product (col..col+2).to_a
+end
+
+def block_for_coords grid, row, col
+  block_coords(row, col).map do |row, col|
+    grid[row][col]
   end
-  ret
 end
 
 def column grid, col
   grid.map { |row| row[col] }
 end
 
-def no_dupes? group
-  test = [false, false, false, false, false, false, false, false, false, false]
-  group.each do |num|
-    next unless num
-    return false if test[num]
-    test[num] = true
-  end
-  true
+def valid_move? grid, try, row, col
+  !grid[row].include?(try) &&
+  !column(grid, col).include?(try) &&
+  !block_for_coords(grid, row, col).include?(try)
 end
 
-def valid? grid, row, col
-  no_dupes?(grid[row]) &&
-  no_dupes?(column(grid, col)) &&
-  no_dupes?(block_for_coords(grid, row, col))
-end
-
-def find_next_blank grid
-  9.times do |row|
-    9.times do |col|
-      return [row, col] unless grid[row][col]
+def find_next_blank grid, row, col
+  while row != 9
+    return [row, col] unless grid[row][col]
+    col += 1
+    if col == 9
+      row += 1
+      col = 0
     end
   end
-  return [false, false]
+  [false, false]
 end
 
-def solve grid
-  row, col = find_next_blank grid
+def solve grid, row = 0, col = 0
+  row, col = find_next_blank grid, row, col
   return grid if !row && !col
 
   (1..9).each do |try|
+    next unless valid_move?(grid, try, row, col)
     grid[row][col] = try
-    next unless valid?(grid, row, col)
-    ret = solve grid
+    ret = solve grid, row, col
     return ret if ret
   end
   grid[row][col] = nil
-  false
 end
 
 output solve parse
