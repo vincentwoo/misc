@@ -13,11 +13,14 @@ def get_links(url)
   }.map { |link|
     link.attributes['href'].text
   }.select { |link|
-    link.start_with?('/wiki') &&
-    !link.start_with?('/wiki/Special:') &&
-    !link.start_with?('/wiki/Template:')
+    link.start_with?('/wiki')
   }.map { |link|
     link[6..-1]
+  }.reject { |link|
+    link.start_with?('Special:') ||
+    link.start_with?('Template:') ||
+    link.start_with?('Category:') ||
+    link.start_with?('Wikipedia:') 
   }
 end
 
