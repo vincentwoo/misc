@@ -26,13 +26,15 @@ end
 
 queue = [['Philosophy']]
 seen  = {}
+count = 0
 
 while path = queue.shift
   node = path.last
   next if seen[node]
   seen[node] = true
 
-  puts "getting links for #{node}"
+  count += 1
+  puts "(#{count}/#{queue.length})\t#{node}"
   links = get_links(node)
 
   if links.include? BACON
