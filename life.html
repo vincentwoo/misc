@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Conway's game of life</title>
+    <style>
+      html, body {
+        height: 100%;
+        width: 100%;
+        background: #eee;
+      }
+
+      table {
+        margin-top: 10px;
+        border-collapse: collapse;
+      }
+
+      tr {
+        height: 10px;
+      }
+
+      td {
+        width: 10px;
+        height: 10px;
+        border: 1px solid #aaa;
+      }
+
+      td.true {
+        background: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="start">start</button>
+    <button id="stop">stop</button>
+    <table id="grid" cellspacing="0" cellpadding="0"></table>
+
+    <script>
+      var ROWS = 50;
+      var COLS = 50;
+      var GRID = [];
+      var table = document.getElementById('grid');
+
+      for (var i = 0; i < ROWS; i++) {
+        var tr = document.createElement('tr');
+        var row = [];
+        for (var j = 0; j < COLS; j++) {
+          (function(i, j) {
+            var td = document.createElement('td');
+            td.className = 'false'
+            td.addEventListener('click', function() {
+              this.className = GRID[i][j].val = !GRID[i][j].val;
+            })
+            tr.appendChild(td);
+            row.push({val: false, cell: td});
+          })(i, j);
+        }
+        table.appendChild(tr);
+        GRID.push(row);
+      }
+
+      function life() {
+        for (var i = 0; i < ROWS; i++) {
+          for (var j = 0; j < COLS; j++) {
+            var neighbors = neighbor_sum(i, j);
+            GRID[i][j].cell.className = ((neighbors == 2 && GRID[i][j].val) || neighbors == 3);
+          }
+        }
+        for (var i = 0; i < ROWS; i++) {
+          for (var j = 0; j < COLS; j++) {
+            GRID[i][j].val = GRID[i][j].cell.className == 'true';
+          }
+        }
+      }
+
+      function neighbor_sum(i, j) {
+        var sum = 0;
+        for (var k = -1; k <= 1; k++) {
+          for (var l = -1; l <= 1; l++) {
+            if (k == 0 && l == 0) continue;
+            try {
+              if (GRID[i + k][j +l].val) sum++;
+            } catch (e) {}
+          }
+        }
+        return sum;
+      }
+
+      var lifeInterval = null;
+      document.getElementById('start').addEventListener('click', function() {
+        clearInterval(lifeInterval);
+        lifeInterval = setInterval(life, 200);
+      });
+      document.getElementById('stop').addEventListener('click', function() {
+        clearInterval(lifeInterval);
+      });
+    </script>
+  </body>
+</html>
