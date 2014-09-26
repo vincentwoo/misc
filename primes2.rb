@@ -29,8 +29,8 @@ def generate_primes n
 end
 
 def factorize n, ith_prime = 0
-  return $factors[n] if $factors[n]
   generate_primes n
+  return $factors[n] if $factors[n]
 
   breakpoint = n / 2
 
