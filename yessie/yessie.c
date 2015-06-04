@@ -89,10 +89,16 @@ char* longest_common_substring(SuffixNode* trie, char* string, int minLen) {
   return NULL;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+  if (argc != 3 && argc != 4) {
+    printf("Usage: ./yessie.o SEQUENCE_FILE.txt PATTERNS_FILE.txt [min_match_len]\n");
+    printf("  If not supplied, the minimum matching length will be 20\n");
+    return 1;
+  }
+
   FILE *sequenceFile, *patternsFile;
 
-  sequenceFile = fopen("MSNP1AS_sequence.txt", "r");
+  sequenceFile = fopen(argv[1], "r");
   char *sequence = malloc(sizeof(char) * 10000);
   fgets(sequence, 10000, sequenceFile);
   fclose(sequenceFile);
@@ -100,11 +106,14 @@ int main() {
   free(sequence);
 
   char pattern[256];
-  int num1, num2, count=0;
-  patternsFile = fopen("MSN3B_L003_3D_L008_REN24OE_COMPARE.txt", "r");
+  int num1, num2, count=0, min_match_len = 20;
+  patternsFile = fopen(argv[2], "r");
+  if (argc == 4) {
+    min_match_len = atoi(argv[3]);
+  }
 
   while (fscanf(patternsFile, "%s %d %d", pattern, &num1, &num2) != EOF) {
-    char* lcs = longest_common_substring(trie, pattern, 20);
+    char* lcs = longest_common_substring(trie, pattern, min_match_len);
     if (lcs) {
       printf("%s %s %d %d\n", pattern, lcs, num1, num2);
       free(lcs);
