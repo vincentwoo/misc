@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 typedef struct SuffixNodes {
   struct SuffixNodes* children[4];
@@ -61,23 +62,31 @@ SuffixNode* build_suffix_trie(char* string) {
   return root;
 }
 
-bool containsString(SuffixNode* trie, char* string) {
-  while (*string) {
-    int base = base_to_index(*string);
-    trie = trie->children[base];
-    if (!trie) return false;
-    string++;
+char* longest_common_substring(SuffixNode* trie, char* string) {
+  char *cur_start = string, *string_ptr = string, *best_start = string;
+  int max_len = 0;
+
+  while (*string_ptr) {
+    SuffixNode* child = trie->children[base_to_index(*string_ptr)];
+    if (!child) {
+      trie = trie->suffix_link;
+      cur_start = string_ptr;
+    } else {
+      string_ptr++;
+      trie = child;
+      if (string_ptr - cur_start > max_len) {
+        best_start = cur_start;
+        max_len = string_ptr - cur_start;
+      }
+    }
   }
-  return true;
+
+  char* ret = calloc(max_len + 1, sizeof(char));
+  return strncpy(ret, best_start, max_len);
 }
 
 int main() {
   SuffixNode* trie = build_suffix_trie("AAAACCATTA");
-  // if (!containsString(trie, "AAAA")) printf("AAAA not contained\n");
-  if (containsString(trie, "AC")) printf("AC contained\n");
-  if (!containsString(trie, "CATTT")) printf("CATTT not contained\n");
-  if (containsString(trie, "CATT")) printf("CATT contained\n");
-  if (containsString(trie, "ATT")) printf("ATT contained\n");
-  if (!containsString(trie, "TCC")) printf("TCC not contained\n");
+  printf("%s\n", longest_common_substring(trie, "CCCATA"));
   return 0;
 }
