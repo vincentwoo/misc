@@ -11,7 +11,7 @@ typedef int bool;
 #define true 1
 #define false 0
 
-int base_to_index(char base) {
+static inline int base_to_index(char base) {
   switch(base) {
     case 'A':
       return 0;
