@@ -62,7 +62,7 @@ SuffixNode* build_suffix_trie(char* string) {
   return root;
 }
 
-char* longest_common_substring(SuffixNode* trie, char* string) {
+char* longest_common_substring(SuffixNode* trie, char* string, int minLen) {
   char *cur_start = string, *string_ptr = string, *best_start = string;
   int max_len = 0;
 
@@ -81,12 +81,35 @@ char* longest_common_substring(SuffixNode* trie, char* string) {
     }
   }
 
-  char* ret = calloc(max_len + 1, sizeof(char));
-  return strncpy(ret, best_start, max_len);
+  if (max_len >= minLen) {
+    char* ret = calloc(max_len + 1, sizeof(char));
+    return strncpy(ret, best_start, max_len);
+  }
+
+  return NULL;
 }
 
 int main() {
-  SuffixNode* trie = build_suffix_trie("AAAACCATTA");
-  printf("%s\n", longest_common_substring(trie, "CCCATA"));
+  FILE *sequenceFile, *patternsFile;
+
+  sequenceFile = fopen("MSNP1AS_sequence.txt", "r");
+  char *sequence = malloc(sizeof(char) * 10000);
+  fgets(sequence, 10000, sequenceFile);
+  fclose(sequenceFile);
+  SuffixNode* trie = build_suffix_trie(sequence);
+  free(sequence);
+
+  char pattern[256];
+  int num1, num2, count=0;
+  patternsFile = fopen("MSN3B_L003_3D_L008_REN24OE_COMPARE.txt", "r");
+
+  while (fscanf(patternsFile, "%s %d %d", pattern, &num1, &num2) != EOF) {
+    char* lcs = longest_common_substring(trie, pattern, 20);
+    if (lcs) {
+      printf("%s %s %d %d\n", pattern, lcs, num1, num2);
+      free(lcs);
+    }
+  }
+  fclose(patternsFile);
   return 0;
 }
