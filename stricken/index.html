@@ -1,0 +1,93 @@
+<html>
+<head>
+  <style>
+    td { padding: 5px 10px; }
+  </style>
+</head>
+<body>
+  <table>
+    <tr>
+      <td>Attacks per seconds</td>
+      <td><input id="aps" type="number" value="1.935" /></td>
+    </tr>
+    <tr>
+      <td>Stricken gem level</td>
+      <td><input id="stricken" type="number" value="98" /></td>
+    </tr>
+    <tr>
+      <td>Base crit chance</td>
+      <td><input id="cc" type="number" value="10" /></td>
+    </tr>
+    <tr>
+      <td>Crit damage</td>
+      <td><input id="chd" type="number" value="446" /></td>
+    </tr>
+    <tr>
+      <td>Number of cycles</td>
+      <td><input id="cycles" type="number" value="5" /></td>
+    </tr>
+  </table>
+  <pre id="output">
+
+  </pre>
+
+  <script>
+    var apsEl = document.getElementById('aps');
+    var strickenEl = document.getElementById('stricken');
+    var cyclesEl = document.getElementById('cycles');
+    var ccEl = document.getElementById('cc');
+    var chdEl = document.getElementById('chd');
+    var output = document.getElementById('output');
+
+    function calc() {
+      var aps = parseFloat(apsEl.value);
+      var stricken = parseInt(strickenEl.value);
+      var cc = parseFloat(ccEl.value) / 100;
+      var chd = parseFloat(chdEl.value) / 100;
+      var cycles = parseInt(cyclesEl.value);
+
+      var strickenPerHit = (0.8 + (stricken * 0.01)) / 100;
+      var stacksPerBuild = Math.floor(30 * aps);
+      var stacksPerDamage = Math.floor((30 - ((1 - cc) / 0.04)) * aps);
+      var baseHit = 1 + cc * chd;
+
+      output.innerHTML =  ''
+      output.innerHTML += "Stricken % per hit: " + strickenPerHit * 100 + "\n";
+      output.innerHTML += "Stacks per build cycle: " + stacksPerBuild + "\n";
+      output.innerHTML += "Stacks per damage cycle: " + stacksPerDamage + "\n";
+      output.innerHTML += "Average unbuffed hit " + baseHit + "\n";
+
+      for (var buildcycles = 0; buildcycles <= cycles; buildcycles++) {
+        damageCycles = cycles - buildcycles;
+        output.innerHTML += "\n" + buildcycles + " build cycles, " + damageCycles + " damage cycles.\n"
+
+        var stacks = 0;
+        var damage = 0;
+
+        for (var i = 0; i < buildcycles; i++) {
+          stacks += stacksPerBuild;
+          var hit = baseHit * (1 + stacks * strickenPerHit);
+          damage += hit;
+          output.innerHTML += "  Hit for " + hit.toFixed(2) + " with " + stacks + " stacks\n"
+        }
+
+        for (var i = 0; i < damageCycles; i++) {
+          stacks += stacksPerDamage;
+          var hit = (1 + chd) * (1 + stacks * strickenPerHit);
+          damage += hit;
+          output.innerHTML += "  Hit for " + hit.toFixed(2) + " with " + stacks + " stacks\n"
+        }
+
+        output.innerHTML += "  " + damage.toFixed(2) + " total damage\n"
+      }
+    }
+
+    calc();
+
+    var inputs = document.getElementsByTagName('input');
+    for (var i = 0; i < inputs.length; i++) {
+      inputs[i].onchange = calc;
+    }
+  </script>
+</body>
+</html>
